@@ -8,7 +8,7 @@ This is a step-by-step guide for a Fingerprint all-in-one project working with T
 
 **<ins>[WIRING DIAGRAM]</ins>**
 
-[WIRING DIAGRAM](docs/ESQUEMA-FINGERPRINT.jpg)
+![WIRING DIAGRAM](docs/ESQUEMA-FINGERPRINT.jpg)
 
 I have kept the external LED and the buzzer from the original Adonno project in the code, but since I don’t use them, I have not included them in the wiring diagram. If you want to install them, you can see how to wire them in Adonno’s project.
 
