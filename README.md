@@ -8,11 +8,11 @@ This is a step-by-step guide for a Fingerprint all-in-one project working with T
 
 **<ins>[WIRING DIAGRAM]</ins>**
 
-![WIRING DIAGRAM](docs/ESQUEMA.jpg)
+![WIRING DIAGRAM](docs/ESQUEMA FINGERPRINT.jpg)
 
 I have kept the external LED and the buzzer from the original Adonno project in the code, but since I don’t use them, I have not included them in the wiring diagram. If you want to install them, you can see how to wire them in Adonno’s project.
 
-The ESP32-C6 must be flashed with [this YAML](tagreader-fingerprint-thread.yaml) in ESPHome. The program is prepared for the ESP32 to connect to a Thread network.
+The ESP32-C6 must be flashed with [this YAML](fingerprint-thread.yaml) in ESPHome. The program is prepared for the ESP32 to connect to a Thread network.
 
 **<ins>[HOW TO USE THE FINGERPRINT]</ins>**
 
