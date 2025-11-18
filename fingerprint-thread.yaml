@@ -1,0 +1,122 @@
+esphome:
+  name: fingerprint-thread
+  friendly_name: Fingerprint-Thread
+
+substitutions:
+  friendly_name: Fingerprint-Thread
+
+esp32:
+  board: esp32-c6-devkitc-1
+  framework:
+    type: esp-idf
+
+network:
+  enable_ipv6: True
+
+openthread:
+  tlv: !secret clave_thread
+
+# Enable logging
+logger:
+
+ota:
+  platform: esphome
+  password: !secret ota_password
+
+# Enable Home Assistant API
+api:
+  services:
+  - service: enroll
+    variables:
+      finger_id: int
+      num_scans: int
+    then:
+      - fingerprint_grow.enroll:
+          finger_id: !lambda 'return finger_id;'
+          num_scans: !lambda 'return num_scans;'
+  - service: cancel_enroll
+    then:
+      - fingerprint_grow.cancel_enroll:
+  - service: delete
+    variables:
+      finger_id: int
+    then:
+      - fingerprint_grow.delete:
+          finger_id: !lambda 'return finger_id;'
+  - service: delete_all
+    then:
+      - fingerprint_grow.delete_all:
+
+binary_sensor:
+  - platform: status
+    name: "${friendly_name} Status"
+    entity_category: diagnostic
+  - platform: fingerprint_grow
+    id: fingerprint_enrolling
+    name: "Acquiring fingerprint"
+
+text_sensor:
+  - platform: version
+    hide_timestamp: true
+    name: "${friendly_name} ESPHome Version"
+    entity_category: diagnostic
+  - platform: template
+    id: fingerprint_status
+    name: "Fingerprint status"
+
+sensor:
+  - platform: fingerprint_grow
+    fingerprint_count:
+      name: "Fingerprint count"
+    last_finger_id:
+      name: "Last fingerprint ID"
+    last_confidence:
+      name: "Reliability of last fingerprint"
+    status:
+      name: "Fingerprint status"
+    capacity:
+      name: "Fingerprint capacity"
+    security_level:
+      name: "Security level"
+
+# R503 fingerprint reader
+uart:
+  - id: fingerprint_uart
+    rx_pin: 17
+    tx_pin: 16
+    baud_rate: 57600
+
+fingerprint_grow:
+  sensing_pin: 2
+  uart_id: fingerprint_uart
+  on_finger_scan_matched:
+    - text_sensor.template.publish:
+        id: fingerprint_status
+        state: "Fingerprint OK"
+    - delay: 4000ms
+    - text_sensor.template.publish:
+        id: fingerprint_status
+        state: "Waiting for fingerprint"
+    - fingerprint_grow.aura_led_control:
+        state: BREATHING
+        speed: 200
+        color: BLUE
+        count: 1
+  on_finger_scan_unmatched:
+    - text_sensor.template.publish:
+        id: fingerprint_status
+        state: "Fingerprint Not Recognized"
+    - fingerprint_grow.aura_led_control:
+        state: FLASHING
+        speed: 25
+        color: RED
+        count: 1
+  on_enrollment_scan:
+    - text_sensor.template.publish:
+        id: fingerprint_status
+        state: "Fingerprint registered"
+    - fingerprint_grow.aura_led_control:
+        state: FLASHING
+        speed: 25
+        color: BLUE
+        count: 2
